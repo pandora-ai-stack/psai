@@ -1,0 +1,17 @@
+# Rust build artifacts (53 MB+) — never commit
+vault/target/
+**/target/
+# release binaries — attach to GitHub releases, don't commit
+vault/dist/
+
+# Secrets / local-only — never commit
+pass
+.stack.env
+secrets/
+.runtime.env
+*.7z
+*.7z.sha256
+
+# OS noise
+.DS_Store
+**/.DS_Store

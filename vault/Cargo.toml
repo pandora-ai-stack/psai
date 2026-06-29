@@ -1,0 +1,24 @@
+[package]
+name = "stack-vault"
+version = "1.0.0"
+edition = "2021"
+description = "psai in-memory secrets daemon (Vault-style): secrets live in mlock'd RAM, served over a peer-credential-gated Unix socket; only an AES-256-GCM blob touches disk."
+
+[[bin]]
+name = "stack-vault"
+path = "src/main.rs"
+
+[dependencies]
+aes-gcm = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+libc = "0.2"
+zeroize = "1"
+base64 = "0.22"
+subtle = "2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+panic = "abort"

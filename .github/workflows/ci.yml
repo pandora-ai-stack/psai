@@ -1,0 +1,45 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck and bats
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck bats
+
+      - name: Build (assemble + bash -n)
+        run: ./build.sh
+
+      - name: Shellcheck
+        run: shellcheck -S warning -e SC2034 psai.sh
+
+      - name: bats tests
+        run: bats tests/
+
+  vault:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vault
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build stack-vault
+        run: cargo build --release
+
+      - name: Smoke test the vault
+        run: |
+          BIN=target/release/stack-vault
+          printf testpass | PSAI_VAULT_SKIP_MLOCK=1 PSAI_VAULT_PASS=testpass "$BIN" serve --socket /tmp/v.sock --blob /tmp/v.enc &
+          sleep 1
+          printf 's3cr3t' | "$BIN" put k --socket /tmp/v.sock
+          test "$("$BIN" get k --socket /tmp/v.sock)" = "s3cr3t"
+          "$BIN" seal --socket /tmp/v.sock

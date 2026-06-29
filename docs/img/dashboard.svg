@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 948 1006" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13">
+<rect x="0" y="0" width="948" height="1006" rx="10" fill="#0a0a0a"/>
+<style>.b{font-weight:700}</style>
+<text x="24" y="36" fill="#bf9cf0" class="b" xml:space="preserve">                                 ░██<animate attributeName="opacity" values="1;0" dur="1.06s" calcMode="discrete" repeatCount="indefinite"/></text>
+<text x="24" y="60" fill="#bf9cf0" class="b" xml:space="preserve">░████████   ░███████   ░██████   ░██</text>
+<text x="24" y="75" fill="#bf9cf0" class="b" xml:space="preserve">░██    ░██ ░██              ░██  ░██</text>
+<text x="24" y="90" fill="#bf9cf0" class="b" xml:space="preserve">░██    ░██  ░███████   ░███████  ░██</text>
+<text x="24" y="105" fill="#bf9cf0" class="b" xml:space="preserve">░███   ░██        ░██ ░██   ░██  ░██</text>
+<text x="24" y="120" fill="#bf9cf0" class="b" xml:space="preserve">░██░█████   ░███████   ░█████░██ ░██</text>
+<text x="24" y="135" fill="#bf9cf0" class="b" xml:space="preserve">░██                version:    1.0.0</text>
+<text x="24" y="150" fill="#bf9cf0" class="b" xml:space="preserve">░██                release:   github</text>
+<text x="24" y="172" fill="#8a8f98">v1.0.0 · beta · local</text>
+<text x="24" y="191"><tspan fill="#e6e6e8" class="b">psai</tspan><tspan fill="#8a8f98"> · single · local · domain: psai.lan</tspan></text>
+<text x="24" y="221" fill="#5cb6c6" class="b">Host</text>
+<line x1="24" y1="230" x2="924" y2="230" stroke="#20232a" stroke-width="1"/>
+<circle cx="38" cy="243" r="4.2" fill="#8cc265"/>
+<text y="247"><tspan x="56" fill="#6b7079">HOST:</tspan><tspan x="112" fill="#e6e6e8" class="b">ai-server</tspan><tspan x="300" fill="#6b7079">RAM:</tspan><tspan x="344" fill="#c4c8ce">70%</tspan><tspan x="408" fill="#6b7079">CPU:</tspan><tspan x="452" fill="#c4c8ce">13%</tspan><tspan x="516" fill="#6b7079">DISK:</tspan><tspan x="572" fill="#c4c8ce">6%</tspan></text>
+<circle cx="38" cy="264" r="4.2" fill="#8cc265"/>
+<text y="268"><tspan x="56" fill="#6b7079">DOCKER:</tspan><tspan x="124" fill="#e6e6e8" class="b">29.5.2</tspan><tspan x="300" fill="#6b7079">VM:</tspan><tspan x="344" fill="#c4c8ce">4 vCPU / 11.7 GB</tspan></text>
+<text x="24" y="302" fill="#5cb6c6" class="b">Components</text>
+<line x1="24" y1="311" x2="924" y2="311" stroke="#20232a" stroke-width="1"/>
+<text y="328"><tspan x="56" fill="#5b6068">NAME</tspan><tspan x="232" fill="#5b6068">IMAGE</tspan><tspan x="474" fill="#5b6068">STATE</tspan><tspan x="584" fill="#5b6068">HEALTH</tspan></text>
+<circle cx="38" cy="344" r="4.2" fill="#8cc265"/>
+<text y="348"><tspan x="56" fill="#e6e6e8" class="b">caddy</tspan><tspan x="232" fill="#c4c8ce">caddy:2.9-alpine</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="363" r="4.2" fill="#8cc265"/>
+<text y="367"><tspan x="56" fill="#e6e6e8" class="b">dind</tspan><tspan x="232" fill="#c4c8ce">docker:27-dind</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="382" r="4.2" fill="#8cc265"/>
+<text y="386"><tspan x="56" fill="#e6e6e8" class="b">embed</tspan><tspan x="232" fill="#c4c8ce">infinity:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#8cc265">healthy</tspan></text>
+<circle cx="38" cy="401" r="4.2" fill="#8cc265"/>
+<text y="405"><tspan x="56" fill="#e6e6e8" class="b">forgejo</tspan><tspan x="232" fill="#c4c8ce">forgejo:15</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="420" r="4.2" fill="#8cc265"/>
+<text y="424"><tspan x="56" fill="#e6e6e8" class="b">ingest-docling</tspan><tspan x="232" fill="#c4c8ce">docling-serve-cpu:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="439" r="4.2" fill="#8cc265"/>
+<text y="443"><tspan x="56" fill="#e6e6e8" class="b">ingest-tika</tspan><tspan x="232" fill="#c4c8ce">tika:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="458" r="4.2" fill="#8cc265"/>
+<text y="462"><tspan x="56" fill="#e6e6e8" class="b">langfuse</tspan><tspan x="232" fill="#c4c8ce">langfuse:2</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="477" r="4.2" fill="#8cc265"/>
+<text y="481"><tspan x="56" fill="#e6e6e8" class="b">langfuse-db</tspan><tspan x="232" fill="#c4c8ce">postgres:16-alpine</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="496" r="4.2" fill="#8cc265"/>
+<text y="500"><tspan x="56" fill="#e6e6e8" class="b">litellm</tspan><tspan x="232" fill="#c4c8ce">litellm:main-stable</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="515" r="4.2" fill="#8cc265"/>
+<text y="519"><tspan x="56" fill="#e6e6e8" class="b">mcp-gateway</tspan><tspan x="232" fill="#c4c8ce">mcp-gateway:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="534" r="4.2" fill="#8cc265"/>
+<text y="538"><tspan x="56" fill="#e6e6e8" class="b">memory</tspan><tspan x="232" fill="#c4c8ce">cognee-mcp:main</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="553" r="4.2" fill="#8cc265"/>
+<text y="557"><tspan x="56" fill="#e6e6e8" class="b">ollama</tspan><tspan x="232" fill="#c4c8ce">python:3.12-alpine</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="572" r="4.2" fill="#6b7079"/>
+<text y="576"><tspan x="56" fill="#e6e6e8" class="b">ollama-pull</tspan><tspan x="232" fill="#c4c8ce">ollama:latest</tspan><tspan x="474" fill="#8a8f98">exited</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="591" r="4.2" fill="#8cc265"/>
+<text y="595"><tspan x="56" fill="#e6e6e8" class="b">ollama-raw</tspan><tspan x="232" fill="#c4c8ce">ollama:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="610" r="4.2" fill="#8cc265"/>
+<text y="614"><tspan x="56" fill="#e6e6e8" class="b">openhands</tspan><tspan x="232" fill="#c4c8ce">openhands:1.8.0</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<circle cx="38" cy="629" r="4.2" fill="#8cc265"/>
+<text y="633"><tspan x="56" fill="#e6e6e8" class="b">openwebui</tspan><tspan x="232" fill="#c4c8ce">open-webui:main</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#8cc265">healthy</tspan></text>
+<circle cx="38" cy="648" r="4.2" fill="#8cc265"/>
+<text y="652"><tspan x="56" fill="#e6e6e8" class="b">proxy-stack</tspan><tspan x="232" fill="#c4c8ce">torproxy:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#8cc265">healthy</tspan></text>
+<circle cx="38" cy="667" r="4.2" fill="#8cc265"/>
+<text y="671"><tspan x="56" fill="#e6e6e8" class="b">proxy-web</tspan><tspan x="232" fill="#c4c8ce">torproxy:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#8cc265">healthy</tspan></text>
+<circle cx="38" cy="686" r="4.2" fill="#8cc265"/>
+<text y="690"><tspan x="56" fill="#e6e6e8" class="b">qdrant</tspan><tspan x="232" fill="#c4c8ce">qdrant:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#8cc265">healthy</tspan></text>
+<circle cx="38" cy="705" r="4.2" fill="#8cc265"/>
+<text y="709"><tspan x="56" fill="#e6e6e8" class="b">searxng</tspan><tspan x="232" fill="#c4c8ce">searxng:latest</tspan><tspan x="474" fill="#8a8f98">running</tspan><tspan x="584" fill="#5b6068">-</tspan></text>
+<text x="24" y="742" fill="#5cb6c6" class="b">Network</text>
+<line x1="24" y1="751" x2="924" y2="751" stroke="#20232a" stroke-width="1"/>
+<text y="768"><tspan x="56" fill="#8a8f98">proxy-stack:</tspan><tspan x="170" fill="#5cb6c6" class="b">Tor</tspan><tspan x="216" fill="#6b7079">(LLM + update)</tspan></text>
+<text y="787"><tspan x="56" fill="#8a8f98">proxy-web:</tspan><tspan x="170" fill="#5cb6c6" class="b">Tor</tspan><tspan x="216" fill="#6b7079">(web worker)</tspan></text>
+<text x="24" y="819" fill="#5cb6c6" class="b">Secrets</text>
+<line x1="24" y1="828" x2="924" y2="828" stroke="#20232a" stroke-width="1"/>
+<text y="845"><tspan x="56" fill="#6b7079">admin:</tspan><tspan x="112" fill="#e6e6e8" class="b">admin</tspan></text>
+<circle cx="300" cy="841" r="4.2" fill="#d9b35f"/>
+<text y="845"><tspan x="318" fill="#6b7079">stack vault:</tspan><tspan x="430" fill="#d9b35f">sealed</tspan></text>
+<text x="24" y="879" fill="#5cb6c6" class="b">Manage the stack</text>
+<text y="907"><tspan x="24" fill="#6b7079">Run</tspan><tspan x="120" fill="#5cb6c6">[1]</tspan><tspan fill="#d4d7dc"> start</tspan><tspan x="280" fill="#5cb6c6">[2]</tspan><tspan fill="#d4d7dc"> stop</tspan><tspan x="415" fill="#5cb6c6">[3]</tspan><tspan fill="#d4d7dc"> restart</tspan><tspan x="560" fill="#5cb6c6">[4]</tspan><tspan fill="#d4d7dc"> status</tspan><tspan x="700" fill="#5cb6c6">[5]</tspan><tspan fill="#d4d7dc"> logs</tspan></text>
+<text y="926"><tspan x="24" fill="#6b7079">Data</tspan><tspan x="120" fill="#5cb6c6">[b]</tspan><tspan fill="#d4d7dc"> backup</tspan><tspan x="280" fill="#5cb6c6">[r]</tspan><tspan fill="#d4d7dc"> restore</tspan><tspan x="415" fill="#5cb6c6">[u]</tspan><tspan fill="#d4d7dc"> update</tspan><tspan x="560" fill="#5cb6c6">[g]</tspan><tspan fill="#d4d7dc"> rebuild</tspan><tspan x="700" fill="#5cb6c6">[a]</tspan><tspan fill="#d4d7dc"> components</tspan></text>
+<text y="945"><tspan x="24" fill="#6b7079">Network</tspan><tspan x="120" fill="#5cb6c6">[s]</tspan><tspan fill="#d4d7dc"> security</tspan><tspan x="280" fill="#5cb6c6">[p]</tspan><tspan fill="#d4d7dc"> proxies</tspan><tspan x="415" fill="#5cb6c6">[w]</tspan><tspan fill="#d4d7dc"> watchdog</tspan><tspan x="560" fill="#5cb6c6">[e]</tspan><tspan fill="#d4d7dc"> seal</tspan><tspan x="700" fill="#5cb6c6">[t]</tspan><tspan fill="#d4d7dc"> trust-ca</tspan><tspan x="838" fill="#5cb6c6">[h]</tspan><tspan fill="#d4d7dc"> hosts</tspan></text>
+<text y="964"><tspan x="24" fill="#6b7079">Settings</tspan><tspan x="120" fill="#5cb6c6">[l]</tspan><tspan fill="#d4d7dc"> language</tspan><tspan x="280" fill="#5cb6c6">[?]</tspan><tspan fill="#d4d7dc"> help</tspan><tspan x="415" fill="#5cb6c6">[q]</tspan><tspan fill="#d4d7dc"> quit</tspan></text>
+<text x="24" y="997" fill="#e6e6e8">Choice or command:</text>
+</svg>

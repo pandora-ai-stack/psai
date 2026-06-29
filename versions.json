@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "stack": "1.0.0",
+  "channel": "beta",
+  "released": "2026-06-24",
+  "installer_sha256": "7e4858024951231a6081a0271ffa6780907d8705c02498323a16ab829e625978",
+  "images": {
+    "openwebui": "ghcr.io/open-webui/open-webui:main",
+    "openhands": "ghcr.io/all-hands-ai/openhands:1.8.0",
+    "searxng":   "searxng/searxng:latest",
+    "qdrant":    "qdrant/qdrant:latest",
+    "forgejo":   "codeberg.org/forgejo/forgejo:15",
+    "caddy":     "caddy:2.9-alpine",
+    "proxy_tor": "dperson/torproxy:latest",
+    "proxy_wireguard": "lscr.io/linuxserver/wireguard:latest",
+    "embed":     "michaelf34/infinity:latest",
+    "docling":   "quay.io/docling-project/docling-serve-cpu:latest",
+    "tika":      "apache/tika:latest",
+    "cognee":    "cognee/cognee-mcp:main",
+    "graphiti":  "zepai/knowledge-graph-mcp:standalone",
+    "falkordb":  "falkordb/falkordb:latest",
+    "ollama":    "ollama/ollama:latest",
+    "mcp_gateway": "docker/mcp-gateway:latest",
+    "mcpo":      "ghcr.io/open-webui/mcpo:main",
+    "litellm":   "ghcr.io/berriai/litellm:main-stable",
+    "langfuse":  "langfuse/langfuse:2",
+    "langfuse_db": "postgres:16-alpine"
+  },
+  "notes": "Public beta. Signed at release as versions.json.sig with an SSH key (ssh-keygen -Y sign -n psai-versions); self-update pins the public key (UPDATE_SIGN_PUBKEY) and verifies before trusting. Image values are default tags (a manifest), not digest pins."
+}
