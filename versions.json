@@ -3,7 +3,7 @@
   "stack": "1.0.0",
   "channel": "beta",
   "released": "2026-06-24",
-  "installer_sha256": "7e4858024951231a6081a0271ffa6780907d8705c02498323a16ab829e625978",
+  "installer_sha256": "6e6c05f6685473c0fe9f0a75ee43800b7625c68c0ce9987aa2b13d6ae99186b2",
   "images": {
     "openwebui": "ghcr.io/open-webui/open-webui:main",
     "openhands": "ghcr.io/all-hands-ai/openhands:1.8.0",

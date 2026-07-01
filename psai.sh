@@ -545,6 +545,9 @@ t() {
       dep_need_root)  printf 'Нужен root/sudo. Перезапусти от root.';;
       dep_docker_failed) printf 'Установка Docker не удалась (apt-репозиторий). Поставь Docker вручную.';;
       dep_docker_group) printf 'Добавил тебя в группу docker — выполни "newgrp docker" (или перелогинься) и перезапусти.';;
+      dep_nvidia_install) printf 'Найден NVIDIA GPU — ставлю NVIDIA Container Toolkit для Docker.';;
+      dep_nvidia_failed) printf 'NVIDIA Container Toolkit не установился/не настроился. Проверь драйвер NVIDIA и Docker.';;
+      dep_nvidia_manual) printf 'Найден NVIDIA GPU, но авто-установка NVIDIA Container Toolkit поддерживает только apt-get.';;
       dep_unknown_os) printf 'Неизвестная ОС. Поставь зависимости вручную.';;
       vault_need_pass) printf 'Для строгого профиля нужен пароль vault (PSAI_VAULT_PASS) в неинтерактивном режиме.';;
       # step 5 — zone / domains
@@ -801,6 +804,9 @@ t() {
       dep_need_root)  printf 'Need root/sudo. Re-run as root.';;
       dep_docker_failed) printf 'Docker install failed (apt repo). Install Docker manually.';;
       dep_docker_group) printf 'Added you to the docker group — run "newgrp docker" (or re-login) and re-run.';;
+      dep_nvidia_install) printf 'Detected an NVIDIA GPU — installing NVIDIA Container Toolkit for Docker.';;
+      dep_nvidia_failed) printf 'NVIDIA Container Toolkit install/config failed. Check the NVIDIA driver and Docker.';;
+      dep_nvidia_manual) printf 'Detected an NVIDIA GPU, but NVIDIA Container Toolkit auto-install supports apt-get only.';;
       dep_unknown_os) printf 'Unknown OS. Install dependencies manually.';;
       vault_need_pass) printf 'Strict profile needs the vault passphrase (PSAI_VAULT_PASS) in non-interactive mode.';;
       step5_title)    printf 'Step 5 · Zone & domains';;
@@ -1307,23 +1313,30 @@ resolve_openhands_socket() {
   esac
 }
 
+nvidia_host_detected() {
+  detect_os
+  [ "$OS_TYPE" = "linux" ] || return 1
+  command_exists nvidia-smi && nvidia-smi -L >/dev/null 2>&1
+}
+
+nvidia_docker_runtime_ready() {
+  command_exists docker || return 1
+  docker info 2>/dev/null | grep -qiE 'nvidia'
+}
+
 # Can docker give a container a GPU for Ollama? Prints: nvidia | none.
 # macOS: the Linux VM (colima/Docker Desktop) has NO GPU passthrough — CPU only, even on Apple
 # Silicon (Metal isn't visible inside the Linux container). Linux: needs an NVIDIA GPU + the
 # nvidia container toolkit so `docker --gpus` works.
 gpu_runtime() {
-  detect_os
-  [ "$OS_TYPE" = "macos" ] && { printf 'none'; return 0; }
-  if command_exists nvidia-smi && nvidia-smi -L >/dev/null 2>&1; then
-    if docker info 2>/dev/null | grep -qiE 'nvidia' || command_exists nvidia-ctk || [ -e /usr/bin/nvidia-container-runtime ]; then
-      printf 'nvidia'; return 0
-    fi
+  if nvidia_host_detected && nvidia_docker_runtime_ready; then
+    printf 'nvidia'; return 0
   fi
   printf 'none'
 }
 # A model that runs acceptably given the detected OS/arch/hardware.
 gpu_default_model() {
-  [ "$(gpu_runtime)" = "nvidia" ] && { printf 'gemma3:4b'; return 0; }
+  { [ "$(gpu_runtime)" = "nvidia" ] || nvidia_host_detected; } && { printf 'gemma3:4b'; return 0; }
   detect_os 2>/dev/null || true
   case "${OS_TYPE:-}:$(uname -m 2>/dev/null)" in
     macos:arm64|macos:aarch64) printf 'gemma4:e2b-it-q4_K_M' ;;
@@ -1516,6 +1529,7 @@ step0_env() {
   local missing; missing="$(env_status)"
   if [ -z "$missing" ]; then
     start_colima_if_needed
+    ensure_nvidia_container_toolkit || return 1
     printf '  %s%s%s\n' "$C_GREEN" "$(t env_ready)" "$C_RESET"
     return 0
   fi
@@ -1538,6 +1552,51 @@ apt_install_docker_ce() {
     "$(dpkg --print-architecture)" "$id" "$code" | $S tee /etc/apt/sources.list.d/docker.list >/dev/null
   $S apt-get update -qq
   $S apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+apt_install_nvidia_container_toolkit() {
+  local S="${1:-}"
+  command_exists apt-get || return 1
+  # shellcheck disable=SC2086
+  $S apt-get install -y -qq ca-certificates curl gnupg2 || return 1
+  # shellcheck disable=SC2086
+  $S install -m 0755 -d /usr/share/keyrings /etc/apt/sources.list.d || return 1
+  # shellcheck disable=SC2086
+  $S rm -f /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+  # shellcheck disable=SC2086
+  curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+    | $S gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg || return 1
+  # shellcheck disable=SC2086
+  curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+    | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+    | $S tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null || return 1
+  # shellcheck disable=SC2086
+  $S apt-get update -qq || return 1
+  # shellcheck disable=SC2086
+  $S apt-get install -y -qq nvidia-container-toolkit || return 1
+  # shellcheck disable=SC2086
+  $S nvidia-ctk runtime configure --runtime=docker || return 1
+  # shellcheck disable=SC2086
+  $S systemctl restart docker 2>/dev/null || $S service docker restart 2>/dev/null || true
+}
+
+ensure_nvidia_container_toolkit() {
+  detect_os
+  [ "$OS_TYPE" = "linux" ] || return 0
+  nvidia_host_detected || return 0
+  nvidia_docker_runtime_ready && return 0
+  command_exists apt-get || { printf '  %s\n' "$(t dep_nvidia_manual)"; return 1; }
+  local S=""
+  if [ "$(id -u)" != "0" ]; then
+    can_use_sudo || { printf '  %s\n' "$(t dep_need_root)"; return 1; }
+    S="sudo"
+  fi
+  printf '  %s%s%s\n' "$C_YELLOW" "$(t dep_nvidia_install)" "$C_RESET"
+  apt_install_nvidia_container_toolkit "$S" || { printf '  %s\n' "$(t dep_nvidia_failed)"; return 1; }
+  if ! nvidia_docker_runtime_ready; then
+    printf '  %s\n' "$(t dep_nvidia_failed)"
+    return 1
+  fi
 }
 
 # Install whatever is missing (brew on macOS, apt on Linux), then re-verify.
@@ -1572,7 +1631,7 @@ install_missing_deps() {
       # shellcheck disable=SC2086
       $S apt-get update
       # shellcheck disable=SC2086
-      $S apt-get install -y git curl ca-certificates openssl p7zip-full
+      $S apt-get install -y git curl ca-certificates openssl p7zip-full gnupg2
       if printf '%s' "$missing" | grep -q 'docker'; then
         apt_install_docker_ce "$S" || { printf '  %s\n' "$(t dep_docker_failed)"; return 1; }
         $S systemctl enable --now docker 2>/dev/null || true
@@ -1594,6 +1653,7 @@ install_missing_deps() {
   if ! docker info >/dev/null 2>&1; then
     printf '\n  %s%s%s\n' "$C_YELLOW" "$(t env_docker_down)" "$C_RESET"; return 1
   fi
+  ensure_nvidia_container_toolkit || return 1
   printf '\n  %s%s%s\n' "$C_GREEN" "$(t env_ready)" "$C_RESET"
   return 0
 }
@@ -1605,8 +1665,8 @@ check_dependencies() {
   for d in $REQUIRED_DEPS; do dep_present "$d" || missing="$missing $d"; done
   command_exists docker && ! docker compose version >/dev/null 2>&1 && missing="$missing docker-compose"
   missing="$(trim "$missing")"
-  [ -z "$missing" ] && return 0
-  install_missing_deps "$missing"
+  [ -z "$missing" ] || install_missing_deps "$missing" || return 1
+  ensure_nvidia_container_toolkit
 }
 # ───────────────────────────── config (.stack.env) ─────────────────────────────
 load_config() {
@@ -3660,13 +3720,30 @@ EOF
 build_openhands_sandbox() {
   [ "$ENABLE_AGENTS" = "true" ] || return 0
   write_openhands_sandbox_dockerfile
+  local img
+  img="${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}"
   if [ "${OPENHANDS_DOCKER_MODE:-host}" = "dind" ]; then
-    docker image inspect "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" >/dev/null 2>&1 \
-      || docker build -t "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" "$STACK_DIR/openhands-sandbox" \
+    docker image inspect "$img" >/dev/null 2>&1 \
+      || build_openhands_sandbox_image "$img" \
       || true
     return 0
   fi
-  docker build -t "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" "$STACK_DIR/openhands-sandbox"
+  build_openhands_sandbox_image "$img"
+}
+
+build_openhands_sandbox_image() {
+  local img="$1" timeout rc
+  timeout="${PSAI_SANDBOX_BUILD_TIMEOUT:-1800}"
+
+  # The Dockerfile is intentionally plain. Prefer the legacy builder because Docker 29
+  # BuildKit can leave this build stuck forever at "exporting layers" on small hosts.
+  run_with_timeout "$timeout" env DOCKER_BUILDKIT=0 docker build -t "$img" "$STACK_DIR/openhands-sandbox"
+  rc=$?
+  if [ "$rc" -eq 0 ]; then
+    return 0
+  fi
+  printf '%sopenhands sandbox: legacy docker build failed (rc=%s), retrying with BuildKit%s\n' "$C_YELLOW" "$rc" "$C_RESET" >&2
+  run_with_timeout "$timeout" docker build -t "$img" "$STACK_DIR/openhands-sandbox"
 }
 
 wait_dind_ready() {
@@ -3771,9 +3848,9 @@ run_with_timeout() {
   i=0
   while kill -0 "$pid" 2>/dev/null; do
     if [ "$i" -ge "$seconds" ]; then
-      kill "$pid" 2>/dev/null || true
+      kill_process_tree TERM "$pid"
       sleep 2
-      kill -9 "$pid" 2>/dev/null || true
+      kill_process_tree KILL "$pid"
       wait "$pid" 2>/dev/null || true
       return 124
     fi
@@ -3782,6 +3859,16 @@ run_with_timeout() {
   done
   rc=0; wait "$pid" || rc=$?
   return $rc
+}
+
+kill_process_tree() {
+  local signal="$1" pid="$2" child
+  if command -v pgrep >/dev/null 2>&1; then
+    for child in $(pgrep -P "$pid" 2>/dev/null || true); do
+      kill_process_tree "$signal" "$child"
+    done
+  fi
+  kill "-$signal" "$pid" 2>/dev/null || true
 }
 
 compose_up_core() {

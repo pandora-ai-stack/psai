@@ -74,23 +74,30 @@ resolve_openhands_socket() {
   esac
 }
 
+nvidia_host_detected() {
+  detect_os
+  [ "$OS_TYPE" = "linux" ] || return 1
+  command_exists nvidia-smi && nvidia-smi -L >/dev/null 2>&1
+}
+
+nvidia_docker_runtime_ready() {
+  command_exists docker || return 1
+  docker info 2>/dev/null | grep -qiE 'nvidia'
+}
+
 # Can docker give a container a GPU for Ollama? Prints: nvidia | none.
 # macOS: the Linux VM (colima/Docker Desktop) has NO GPU passthrough — CPU only, even on Apple
 # Silicon (Metal isn't visible inside the Linux container). Linux: needs an NVIDIA GPU + the
 # nvidia container toolkit so `docker --gpus` works.
 gpu_runtime() {
-  detect_os
-  [ "$OS_TYPE" = "macos" ] && { printf 'none'; return 0; }
-  if command_exists nvidia-smi && nvidia-smi -L >/dev/null 2>&1; then
-    if docker info 2>/dev/null | grep -qiE 'nvidia' || command_exists nvidia-ctk || [ -e /usr/bin/nvidia-container-runtime ]; then
-      printf 'nvidia'; return 0
-    fi
+  if nvidia_host_detected && nvidia_docker_runtime_ready; then
+    printf 'nvidia'; return 0
   fi
   printf 'none'
 }
 # A model that runs acceptably given the detected OS/arch/hardware.
 gpu_default_model() {
-  [ "$(gpu_runtime)" = "nvidia" ] && { printf 'gemma3:4b'; return 0; }
+  { [ "$(gpu_runtime)" = "nvidia" ] || nvidia_host_detected; } && { printf 'gemma3:4b'; return 0; }
   detect_os 2>/dev/null || true
   case "${OS_TYPE:-}:$(uname -m 2>/dev/null)" in
     macos:arm64|macos:aarch64) printf 'gemma4:e2b-it-q4_K_M' ;;

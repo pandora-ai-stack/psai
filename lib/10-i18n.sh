@@ -169,6 +169,9 @@ t() {
       dep_need_root)  printf 'Нужен root/sudo. Перезапусти от root.';;
       dep_docker_failed) printf 'Установка Docker не удалась (apt-репозиторий). Поставь Docker вручную.';;
       dep_docker_group) printf 'Добавил тебя в группу docker — выполни "newgrp docker" (или перелогинься) и перезапусти.';;
+      dep_nvidia_install) printf 'Найден NVIDIA GPU — ставлю NVIDIA Container Toolkit для Docker.';;
+      dep_nvidia_failed) printf 'NVIDIA Container Toolkit не установился/не настроился. Проверь драйвер NVIDIA и Docker.';;
+      dep_nvidia_manual) printf 'Найден NVIDIA GPU, но авто-установка NVIDIA Container Toolkit поддерживает только apt-get.';;
       dep_unknown_os) printf 'Неизвестная ОС. Поставь зависимости вручную.';;
       vault_need_pass) printf 'Для строгого профиля нужен пароль vault (PSAI_VAULT_PASS) в неинтерактивном режиме.';;
       # step 5 — zone / domains
@@ -425,6 +428,9 @@ t() {
       dep_need_root)  printf 'Need root/sudo. Re-run as root.';;
       dep_docker_failed) printf 'Docker install failed (apt repo). Install Docker manually.';;
       dep_docker_group) printf 'Added you to the docker group — run "newgrp docker" (or re-login) and re-run.';;
+      dep_nvidia_install) printf 'Detected an NVIDIA GPU — installing NVIDIA Container Toolkit for Docker.';;
+      dep_nvidia_failed) printf 'NVIDIA Container Toolkit install/config failed. Check the NVIDIA driver and Docker.';;
+      dep_nvidia_manual) printf 'Detected an NVIDIA GPU, but NVIDIA Container Toolkit auto-install supports apt-get only.';;
       dep_unknown_os) printf 'Unknown OS. Install dependencies manually.';;
       vault_need_pass) printf 'Strict profile needs the vault passphrase (PSAI_VAULT_PASS) in non-interactive mode.';;
       step5_title)    printf 'Step 5 · Zone & domains';;

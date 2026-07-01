@@ -448,13 +448,30 @@ EOF
 build_openhands_sandbox() {
   [ "$ENABLE_AGENTS" = "true" ] || return 0
   write_openhands_sandbox_dockerfile
+  local img
+  img="${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}"
   if [ "${OPENHANDS_DOCKER_MODE:-host}" = "dind" ]; then
-    docker image inspect "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" >/dev/null 2>&1 \
-      || docker build -t "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" "$STACK_DIR/openhands-sandbox" \
+    docker image inspect "$img" >/dev/null 2>&1 \
+      || build_openhands_sandbox_image "$img" \
       || true
     return 0
   fi
-  docker build -t "${SAFE_STACK_NAME}_${OPENHANDS_SANDBOX_IMAGE_SUFFIX}" "$STACK_DIR/openhands-sandbox"
+  build_openhands_sandbox_image "$img"
+}
+
+build_openhands_sandbox_image() {
+  local img="$1" timeout rc
+  timeout="${PSAI_SANDBOX_BUILD_TIMEOUT:-1800}"
+
+  # The Dockerfile is intentionally plain. Prefer the legacy builder because Docker 29
+  # BuildKit can leave this build stuck forever at "exporting layers" on small hosts.
+  run_with_timeout "$timeout" env DOCKER_BUILDKIT=0 docker build -t "$img" "$STACK_DIR/openhands-sandbox"
+  rc=$?
+  if [ "$rc" -eq 0 ]; then
+    return 0
+  fi
+  printf '%sopenhands sandbox: legacy docker build failed (rc=%s), retrying with BuildKit%s\n' "$C_YELLOW" "$rc" "$C_RESET" >&2
+  run_with_timeout "$timeout" docker build -t "$img" "$STACK_DIR/openhands-sandbox"
 }
 
 wait_dind_ready() {
@@ -559,9 +576,9 @@ run_with_timeout() {
   i=0
   while kill -0 "$pid" 2>/dev/null; do
     if [ "$i" -ge "$seconds" ]; then
-      kill "$pid" 2>/dev/null || true
+      kill_process_tree TERM "$pid"
       sleep 2
-      kill -9 "$pid" 2>/dev/null || true
+      kill_process_tree KILL "$pid"
       wait "$pid" 2>/dev/null || true
       return 124
     fi
@@ -570,6 +587,16 @@ run_with_timeout() {
   done
   rc=0; wait "$pid" || rc=$?
   return $rc
+}
+
+kill_process_tree() {
+  local signal="$1" pid="$2" child
+  if command -v pgrep >/dev/null 2>&1; then
+    for child in $(pgrep -P "$pid" 2>/dev/null || true); do
+      kill_process_tree "$signal" "$child"
+    done
+  fi
+  kill "-$signal" "$pid" 2>/dev/null || true
 }
 
 compose_up_core() {

@@ -45,6 +45,7 @@ step0_env() {
   local missing; missing="$(env_status)"
   if [ -z "$missing" ]; then
     start_colima_if_needed
+    ensure_nvidia_container_toolkit || return 1
     printf '  %s%s%s\n' "$C_GREEN" "$(t env_ready)" "$C_RESET"
     return 0
   fi
@@ -67,6 +68,51 @@ apt_install_docker_ce() {
     "$(dpkg --print-architecture)" "$id" "$code" | $S tee /etc/apt/sources.list.d/docker.list >/dev/null
   $S apt-get update -qq
   $S apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+apt_install_nvidia_container_toolkit() {
+  local S="${1:-}"
+  command_exists apt-get || return 1
+  # shellcheck disable=SC2086
+  $S apt-get install -y -qq ca-certificates curl gnupg2 || return 1
+  # shellcheck disable=SC2086
+  $S install -m 0755 -d /usr/share/keyrings /etc/apt/sources.list.d || return 1
+  # shellcheck disable=SC2086
+  $S rm -f /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+  # shellcheck disable=SC2086
+  curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+    | $S gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg || return 1
+  # shellcheck disable=SC2086
+  curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+    | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+    | $S tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null || return 1
+  # shellcheck disable=SC2086
+  $S apt-get update -qq || return 1
+  # shellcheck disable=SC2086
+  $S apt-get install -y -qq nvidia-container-toolkit || return 1
+  # shellcheck disable=SC2086
+  $S nvidia-ctk runtime configure --runtime=docker || return 1
+  # shellcheck disable=SC2086
+  $S systemctl restart docker 2>/dev/null || $S service docker restart 2>/dev/null || true
+}
+
+ensure_nvidia_container_toolkit() {
+  detect_os
+  [ "$OS_TYPE" = "linux" ] || return 0
+  nvidia_host_detected || return 0
+  nvidia_docker_runtime_ready && return 0
+  command_exists apt-get || { printf '  %s\n' "$(t dep_nvidia_manual)"; return 1; }
+  local S=""
+  if [ "$(id -u)" != "0" ]; then
+    can_use_sudo || { printf '  %s\n' "$(t dep_need_root)"; return 1; }
+    S="sudo"
+  fi
+  printf '  %s%s%s\n' "$C_YELLOW" "$(t dep_nvidia_install)" "$C_RESET"
+  apt_install_nvidia_container_toolkit "$S" || { printf '  %s\n' "$(t dep_nvidia_failed)"; return 1; }
+  if ! nvidia_docker_runtime_ready; then
+    printf '  %s\n' "$(t dep_nvidia_failed)"
+    return 1
+  fi
 }
 
 # Install whatever is missing (brew on macOS, apt on Linux), then re-verify.
@@ -101,7 +147,7 @@ install_missing_deps() {
       # shellcheck disable=SC2086
       $S apt-get update
       # shellcheck disable=SC2086
-      $S apt-get install -y git curl ca-certificates openssl p7zip-full
+      $S apt-get install -y git curl ca-certificates openssl p7zip-full gnupg2
       if printf '%s' "$missing" | grep -q 'docker'; then
         apt_install_docker_ce "$S" || { printf '  %s\n' "$(t dep_docker_failed)"; return 1; }
         $S systemctl enable --now docker 2>/dev/null || true
@@ -123,6 +169,7 @@ install_missing_deps() {
   if ! docker info >/dev/null 2>&1; then
     printf '\n  %s%s%s\n' "$C_YELLOW" "$(t env_docker_down)" "$C_RESET"; return 1
   fi
+  ensure_nvidia_container_toolkit || return 1
   printf '\n  %s%s%s\n' "$C_GREEN" "$(t env_ready)" "$C_RESET"
   return 0
 }
@@ -134,6 +181,6 @@ check_dependencies() {
   for d in $REQUIRED_DEPS; do dep_present "$d" || missing="$missing $d"; done
   command_exists docker && ! docker compose version >/dev/null 2>&1 && missing="$missing docker-compose"
   missing="$(trim "$missing")"
-  [ -z "$missing" ] && return 0
-  install_missing_deps "$missing"
+  [ -z "$missing" ] || install_missing_deps "$missing" || return 1
+  ensure_nvidia_container_toolkit
 }
